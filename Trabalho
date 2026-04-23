@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main() {
+    FILE *arquivo;
+
+    // Criando e escrevendo no arquivo
+    arquivo = fopen("aluno.txt", "w");
+
+    if (arquivo == NULL) {
+        printf("Erro na abertura do arquivo!\n");
+        return 1;
+    }
+
+    fprintf(arquivo, "1,Ada,202601,1A\n");
+    fprintf(arquivo, "2,Billy,202602,1B\n");
+    fprintf(arquivo, "3,Chris,202603,1C\n");
+    fprintf(arquivo, "4,Leon,202604,1D\n");
+    fprintf(arquivo, "5,Jill,202605,2A\n");
+    fprintf(arquivo, "6,Wesker,202606,2B\n");
+    fprintf(arquivo, "7,Ashley,202607,2C\n");
+    fprintf(arquivo, "8,Rebecca,202608,2D\n");
+    fprintf(arquivo, "9,Sherry,202609,3A\n");
+    fprintf(arquivo, "10,Brad,202610,3B\n");
+
+    fclose(arquivo);
+
+    int opcao;
+    printf("\n1 - Mostrar lista completa\n");
+    printf("2 - Buscar por ID\n");
+    printf("Escolha uma opcao: ");
+    scanf("%d", &opcao);
+
+    arquivo = fopen("aluno.txt", "r");
+
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo!\n");
+        return 1;
+    }
+
+    char linha[100];
+
+    if (opcao == 1) {
+        printf("\n--- Lista Completa ---\n");
+
+        while (fgets(linha, sizeof(linha), arquivo) != NULL) {
+            printf("%s", linha);
+        }
+
+    } else if (opcao == 2) {
+        int idBusca;
+        printf("Digite o ID: ");
+        scanf("%d", &idBusca);
+
+        int id, matricula;
+        char nome[50], turma[10];
+        int encontrado = 0;
+
+        while (fgets(linha, sizeof(linha), arquivo) != NULL) {
+            sscanf(linha, "%d,%[^,],%d,%s", &id, nome, &matricula, turma);
+
+            if (id == idBusca) {
+                printf("\n--- Aluno encontrado ---\n");
+                printf("ID: %d\n", id);
+                printf("Nome: %s\n", nome);
+                printf("Matricula: %d\n", matricula);
+                printf("Turma: %s\n", turma);
+                encontrado = 1;
+                break;
+            }
+        }
+
+        if (!encontrado) {
+            printf("Aluno com ID %d nao encontrado.\n", idBusca);
+        }
+
+    } else {
+        printf("Opcao invalida!\n");
+    }
+
+    fclose(arquivo);
+
+    return 0;
+}
