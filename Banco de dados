@@ -11,13 +11,13 @@ int main() {
         return 1; 
     }
     
-    fprintf(arquivo, "1,Ana,202601,1A/\n");
-    fprintf(arquivo, "2,Bruno,202602,1B/\n");
-    fprintf(arquivo, "3,Carlos,202603,1C/\n");
-    fprintf(arquivo, "4,Diego,202604,1D/\n");
-    fprintf(arquivo, "5,Elisa,202605,2A/\n");
-    fprintf(arquivo, "6,Felipe,202606,2B/\n");
-    fprintf(arquivo, "7,Gabriela,202607,2C/\n");
+    fprintf(arquivo, "1,Ada,202601,1A/\n");
+    fprintf(arquivo, "2,Billy,202602,1B/\n");
+    fprintf(arquivo, "3,Chris,202603,1C/\n");
+    fprintf(arquivo, "4,Leon,202604,1D/\n");
+    fprintf(arquivo, "5,Jill,202605,2A/\n");
+    fprintf(arquivo, "6,Wesker,202606,2B/\n");
+    fprintf(arquivo, "7,Ashley,202607,2C/\n");
     fprintf(arquivo, "8,Hugo,202608,2D/\n");
     fprintf(arquivo, "9,Isabela,202609,3A/\n");
     fprintf(arquivo, "10,João,202610,3B/\n");
