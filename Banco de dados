@@ -1,0 +1,46 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    FILE *arquivo;
+    
+    arquivo = fopen("aluno.txt", "w");
+    
+    if (arquivo == NULL) {
+        printf("Erro na abertura do arquivo!\n");
+        return 1; 
+    }
+    
+    fprintf(arquivo, "1,Ana,202601,1A/\n");
+    fprintf(arquivo, "2,Bruno,202602,1B/\n");
+    fprintf(arquivo, "3,Carlos,202603,1C/\n");
+    fprintf(arquivo, "4,Diego,202604,1D/\n");
+    fprintf(arquivo, "5,Elisa,202605,2A/\n");
+    fprintf(arquivo, "6,Felipe,202606,2B/\n");
+    fprintf(arquivo, "7,Gabriela,202607,2C/\n");
+    fprintf(arquivo, "8,Hugo,202608,2D/\n");
+    fprintf(arquivo, "9,Isabela,202609,3A/\n");
+    fprintf(arquivo, "10,João,202610,3B/\n");
+
+    printf("Dados gravados com sucesso!\n");
+    
+    fclose(arquivo);
+    
+    arquivo = fopen("aluno.txt", "r");
+    
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo para leitura!\n");
+        return 1;
+    }
+    
+    printf("\n--- Lendo os dados do arquivo ---\n");
+    
+    char linha[100];
+    while (fgets(linha, 100, arquivo) != NULL) {
+        printf("%s", linha);
+    }
+    
+    fclose(arquivo);
+    
+    return 0; 
+}
