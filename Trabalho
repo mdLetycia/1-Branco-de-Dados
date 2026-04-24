@@ -5,7 +5,6 @@
 int main() {
     FILE *arquivo;
 
-    // Criando e escrevendo no arquivo
     arquivo = fopen("aluno.txt", "w");
 
     if (arquivo == NULL) {
