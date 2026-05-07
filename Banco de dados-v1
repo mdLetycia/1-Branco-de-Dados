@@ -1,0 +1,305 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+char nomeBanco[50];
+
+void inicializarBanco() {
+
+    FILE *arquivo = fopen(nomeBanco, "r");
+
+    if (arquivo == NULL) {
+
+        arquivo = fopen(nomeBanco, "w");
+
+        fprintf(arquivo, "1,Ada,202601,1A\n");
+        fprintf(arquivo, "2,Billy,202602,1B\n");
+        fprintf(arquivo, "3,Chris,202603,1C\n");
+        fprintf(arquivo, "4,Leon,202604,1D\n");
+        fprintf(arquivo, "5,Jill,202605,2A\n");
+        fprintf(arquivo, "6,Wesker,202606,2B\n");
+        fprintf(arquivo, "7,Ashley,202607,2C\n");
+        fprintf(arquivo, "8,Rebecca,202608,2D\n");
+        fprintf(arquivo, "9,Sherry,202609,3A\n");
+        fprintf(arquivo, "10,Gracie,202610,3B\n");
+
+        fclose(arquivo);
+
+    } else {
+        fclose(arquivo);
+    }
+}
+
+int gerarNovoID() {
+
+    FILE *arquivo = fopen(nomeBanco, "r");
+
+    int id, matricula;
+    int maiorID = 0;
+
+    char nome[50];
+    char turma[10];
+    char linha[100];
+
+    while (fgets(linha, sizeof(linha), arquivo)) {
+
+        sscanf(linha, "%d,%[^,],%d,%s",
+               &id, nome, &matricula, turma);
+
+        if (id > maiorID) {
+            maiorID = id;
+        }
+    }
+
+    fclose(arquivo);
+
+    return maiorID + 1;
+}
+
+void mostrarTodos() {
+
+    FILE *arquivo = fopen(nomeBanco, "r");
+
+    char linha[100];
+
+    printf("\n========= LISTA DE ALUNOS =========\n");
+
+    while (fgets(linha, sizeof(linha), arquivo)) {
+        printf("%s", linha);
+    }
+
+    fclose(arquivo);
+}
+
+void adicionarAluno() {
+
+    FILE *arquivo = fopen(nomeBanco, "a");
+
+    int id = gerarNovoID();
+    int matricula;
+
+    char nome[50];
+    char turma[10];
+
+    printf("\nNome: ");
+    scanf("%s", nome);
+
+    printf("Matricula: ");
+    scanf("%d", &matricula);
+
+    printf("Turma: ");
+    scanf("%s", turma);
+
+    fprintf(arquivo, "%d,%s,%d,%s\n",
+            id, nome, matricula, turma);
+
+    fclose(arquivo);
+
+    printf("\nAluno cadastrado com ID %d\n", id);
+}
+
+void buscarPorID() {
+
+    FILE *arquivo = fopen(nomeBanco, "r");
+
+    int idBusca;
+    int id, matricula;
+    int encontrado = 0;
+
+    char nome[50];
+    char turma[10];
+    char linha[100];
+
+    printf("\nDigite o ID: ");
+    scanf("%d", &idBusca);
+
+    while (fgets(linha, sizeof(linha), arquivo)) {
+
+        sscanf(linha, "%d,%[^,],%d,%s",
+               &id, nome, &matricula, turma);
+
+        if (id == idBusca) {
+
+            printf("\n======= ALUNO ENCONTRADO =======\n");
+
+            printf("ID: %d\n", id);
+            printf("Nome: %s\n", nome);
+            printf("Matricula: %d\n", matricula);
+            printf("Turma: %s\n", turma);
+
+            encontrado = 1;
+
+            break;
+        }
+    }
+
+    if (!encontrado) {
+        printf("\nAluno nao encontrado.\n");
+    }
+
+    fclose(arquivo);
+}
+
+void alterarAluno() {
+
+    FILE *arquivo = fopen(nomeBanco, "r");
+    FILE *temp = fopen("temp.txt", "w");
+
+    int idBusca;
+    int id, matricula;
+
+    char nome[50];
+    char turma[10];
+    char linha[100];
+
+    int encontrado = 0;
+
+    printf("\nDigite o ID do aluno que deseja alterar: ");
+    scanf("%d", &idBusca);
+
+    while (fgets(linha, sizeof(linha), arquivo)) {
+
+        sscanf(linha, "%d,%[^,],%d,%s",
+               &id, nome, &matricula, turma);
+
+        if (id == idBusca) {
+
+            encontrado = 1;
+
+            printf("\nNovo nome: ");
+            scanf("%s", nome);
+
+            printf("Nova matricula: ");
+            scanf("%d", &matricula);
+
+            printf("Nova turma: ");
+            scanf("%s", turma);
+        }
+
+        fprintf(temp, "%d,%s,%d,%s\n",
+                id, nome, matricula, turma);
+    }
+
+    fclose(arquivo);
+    fclose(temp);
+
+    remove(nomeBanco);
+    rename("temp.txt", nomeBanco);
+
+    if (encontrado) {
+        printf("\nAluno alterado com sucesso.\n");
+    } else {
+        printf("\nAluno nao encontrado.\n");
+    }
+}
+
+void excluirAluno() {
+
+    FILE *arquivo = fopen(nomeBanco, "r");
+    FILE *temp = fopen("temp.txt", "w");
+
+    int idBusca;
+    int id, matricula;
+
+    char nome[50];
+    char turma[10];
+    char linha[100];
+
+    int encontrado = 0;
+    int novoID = 1;
+
+    printf("\nDigite o ID do aluno que deseja excluir: ");
+    scanf("%d", &idBusca);
+
+    while (fgets(linha, sizeof(linha), arquivo)) {
+
+        sscanf(linha, "%d,%[^,],%d,%s",
+               &id, nome, &matricula, turma);
+
+        if (id != idBusca) {
+
+            fprintf(temp, "%d,%s,%d,%s\n",
+                    novoID, nome, matricula, turma);
+
+            novoID++;
+
+        } else {
+
+            encontrado = 1;
+        }
+    }
+
+    fclose(arquivo);
+    fclose(temp);
+
+    remove(nomeBanco);
+    rename("temp.txt", nomeBanco);
+
+    if (encontrado) {
+        printf("\nAluno excluido com sucesso.\n");
+    } else {
+        printf("\nAluno nao encontrado.\n");
+    }
+}
+
+int main() {
+
+    int opcao;
+
+    printf("Digite o nome do banco de dados: ");
+    scanf("%s", nomeBanco);
+
+    strcat(nomeBanco, ".txt");
+
+    inicializarBanco();
+
+    do {
+
+        printf("\n=========== BANCO DE DADOS ===========\n");
+
+        printf("Banco atual: %s\n", nomeBanco);
+
+        printf("\n1 - Adicionar aluno\n");
+        printf("2 - Alterar aluno\n");
+        printf("3 - Excluir aluno\n");
+        printf("4 - Buscar aluno\n");
+        printf("5 - Mostrar tabela\n");
+        printf("0 - Sair\n");
+
+        printf("\nEscolha uma opcao: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+
+            case 1:
+                adicionarAluno();
+                break;
+
+            case 2:
+                alterarAluno();
+                break;
+
+            case 3:
+                excluirAluno();
+                break;
+
+            case 4:
+                buscarPorID();
+                break;
+
+            case 5:
+                mostrarTodos();
+                break;
+
+            case 0:
+                printf("\nEncerrando sistema...\n");
+                break;
+
+            default:
+                printf("\nOpcao invalida.\n");
+        }
+
+    } while (opcao != 0);
+
+    return 0;
+}
