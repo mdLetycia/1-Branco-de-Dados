@@ -1,0 +1,392 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifdef _WIN32
+#include <direct.h>
+#define MKDIR(p) _mkdir(p)
+#define SEP "\\"
+#else
+#include <sys/stat.h>
+#define MKDIR(p) mkdir(p, 0755)
+#define SEP "/"
+#endif
+
+#define MAX_ATRIBUTOS 20
+#define MAX_NOME 100
+#define MAX_VALOR 200
+#define MAX_REGISTROS 1000
+
+char banco_aberto[MAX_NOME] = ""; 
+char entidade_aberta[MAX_NOME*2] = "";
+char atributos[MAX_ATRIBUTOS][MAX_NOME];
+int total_atributos = 0;
+
+void ler_texto(char *destino, int tamanho) {
+    if (fgets(destino, tamanho, stdin) == NULL) { destino[0] = '\0'; return; }
+    int len = strlen(destino);
+    while (len > 0 && (destino[len-1] == '\n' || destino[len-1] == '\r'))
+        destino[--len] = '\0';
+}
+
+int ler_numero() {
+    char buf[30];
+    ler_texto(buf, sizeof(buf));
+    return atoi(buf);
+}
+
+void pausar() {
+    printf("Pressione Enter para continuar...");
+    char buf[5];
+    ler_texto(buf, sizeof(buf));
+}
+
+void linha() { printf("----------------------------------\n"); }
+
+void salvar(char reg[][MAX_ATRIBUTOS][MAX_VALOR], int ids[], int total) {
+    FILE *f = fopen(entidade_aberta, "w");
+    if (!f) { printf("Erro ao salvar.\n"); return; }
+    fprintf(f, "%d\n", total_atributos);
+    for (int i = 0; i < total_atributos; i++)
+        fprintf(f, "%s\n", atributos[i]);
+    fprintf(f, "%d\n", total);
+    for (int i = 0; i < total; i++) {
+        fprintf(f, "%d\n", ids[i]);
+        for (int j = 0; j < total_atributos; j++)
+            fprintf(f, "%s\n", reg[i][j]);
+    }
+    fclose(f);
+}
+
+int carregar(char reg[][MAX_ATRIBUTOS][MAX_VALOR], int ids[]) {
+    FILE *f = fopen(entidade_aberta, "r");
+    if (!f) return 0;
+    char buf[MAX_VALOR];
+
+    fgets(buf, sizeof(buf), f);
+    total_atributos = atoi(buf);
+    for (int i = 0; i < total_atributos; i++) {
+        fgets(atributos[i], MAX_NOME, f);
+        int len = strlen(atributos[i]);
+        while (len > 0 && (atributos[i][len-1]=='\n' || atributos[i][len-1]=='\r'))
+            atributos[i][--len] = '\0';
+    }
+
+    fgets(buf, sizeof(buf), f);
+    int total = atoi(buf);
+    for (int i = 0; i < total; i++) {
+        fgets(buf, sizeof(buf), f);
+        ids[i] = atoi(buf);
+        for (int j = 0; j < total_atributos; j++) {
+            fgets(reg[i][j], MAX_VALOR, f);
+            int len = strlen(reg[i][j]);
+            while (len > 0 && (reg[i][j][len-1]=='\n' || reg[i][j][len-1]=='\r'))
+                reg[i][j][--len] = '\0';
+        }
+    }
+    fclose(f);
+    return total;
+}
+
+/* ── MENU ENTIDADE ── */
+void menu_entidade() {
+    static char reg[MAX_REGISTROS][MAX_ATRIBUTOS][MAX_VALOR];
+    int ids[MAX_REGISTROS];
+    int total = carregar(reg, ids);
+    int prox_id = 1;
+    for (int i = 0; i < total; i++)
+        if (ids[i] >= prox_id) prox_id = ids[i] + 1;
+
+    int op;
+    do {
+        printf("\n"); linha();
+        printf("BANCO: %s  |  ENTIDADE: %s\n", banco_aberto, entidade_aberta);
+        if (total_atributos > 0) {
+            printf("Atributos: ");
+            for (int i = 0; i < total_atributos; i++) {
+                printf("%s", atributos[i]);
+                if (i < total_atributos-1) printf(", ");
+            }
+            printf("\n");
+        }
+        linha();
+        printf("1. Definir atributos\n");
+        printf("2. Adicionar registro\n");
+        printf("3. Listar registros\n");
+        printf("4. Buscar por ID\n");
+        printf("5. Atualizar por ID\n");
+        printf("6. Excluir por ID\n");
+        printf("0. Voltar\n");
+        linha();
+        printf("Opcao: ");
+        op = ler_numero();
+
+        if (op == 1) {
+            printf("Quantos atributos? ");
+            int n = ler_numero();
+            if (n < 1) n = 1;
+            if (n > MAX_ATRIBUTOS) n = MAX_ATRIBUTOS;
+            total_atributos = n;
+            for (int i = 0; i < total_atributos; i++) {
+                printf("Nome do atributo %d: ", i+1);
+                ler_texto(atributos[i], MAX_NOME);
+            }
+            total = 0; prox_id = 1;
+            salvar(reg, ids, total);
+            printf("Atributos definidos!\n");
+            pausar();
+
+        } else if (op == 2) {
+            if (total_atributos == 0) {
+                printf("Defina os atributos primeiro! (opcao 1)\n");
+            } else if (total >= MAX_REGISTROS) {
+                printf("Limite atingido.\n");
+            } else {
+                ids[total] = prox_id++;
+                printf("--- Novo registro (ID %d) ---\n", ids[total]);
+                for (int j = 0; j < total_atributos; j++) {
+                    printf("%s: ", atributos[j]);
+                    ler_texto(reg[total][j], MAX_VALOR);
+                }
+                total++;
+                salvar(reg, ids, total);
+                printf("Registro adicionado!\n");
+            }
+            pausar();
+
+        } else if (op == 3) {
+            if (total == 0) {
+                printf("Nenhum registro cadastrado.\n");
+            } else {
+                printf("\n%-4s", "ID");
+                for (int j = 0; j < total_atributos; j++)
+                    printf("| %-20s", atributos[j]);
+                printf("\n"); linha();
+                for (int i = 0; i < total; i++) {
+                    printf("%-4d", ids[i]);
+                    for (int j = 0; j < total_atributos; j++)
+                        printf("| %-20s", reg[i][j]);
+                    printf("\n");
+                }
+                linha();
+                printf("Total: %d registro(s)\n", total);
+            }
+            pausar();
+
+        } else if (op == 4) {
+            printf("ID a buscar: ");
+            int id = ler_numero();
+            int achou = -1;
+            for (int i = 0; i < total; i++)
+                if (ids[i] == id) { achou = i; break; }
+            if (achou == -1) printf("ID %d nao encontrado.\n", id);
+            else {
+                printf("\nID: %d\n", ids[achou]);
+                for (int j = 0; j < total_atributos; j++)
+                    printf("%s: %s\n", atributos[j], reg[achou][j]);
+            }
+            pausar();
+
+        } else if (op == 5) {
+            printf("ID a atualizar: ");
+            int id = ler_numero();
+            int achou = -1;
+            for (int i = 0; i < total; i++)
+                if (ids[i] == id) { achou = i; break; }
+            if (achou == -1) printf("ID %d nao encontrado.\n", id);
+            else {
+                printf("Deixe em branco para manter o valor atual.\n");
+                for (int j = 0; j < total_atributos; j++) {
+                    printf("%s (atual: %s): ", atributos[j], reg[achou][j]);
+                    char novo[MAX_VALOR];
+                    ler_texto(novo, MAX_VALOR);
+                    if (strlen(novo) > 0)
+                        strcpy(reg[achou][j], novo);
+                }
+                salvar(reg, ids, total);
+                printf("Registro atualizado!\n");
+            }
+            pausar();
+
+        } else if (op == 6) {
+            printf("ID a excluir: ");
+            int id = ler_numero();
+            int achou = -1;
+            for (int i = 0; i < total; i++)
+                if (ids[i] == id) { achou = i; break; }
+            if (achou == -1) printf("ID %d nao encontrado.\n", id);
+            else {
+                for (int i = achou; i < total-1; i++) {
+                    ids[i] = ids[i+1];
+                    for (int j = 0; j < total_atributos; j++)
+                        strcpy(reg[i][j], reg[i+1][j]);
+                }
+                total--;
+                salvar(reg, ids, total);
+                printf("Registro excluido!\n");
+            }
+            pausar();
+
+        } else if (op != 0) {
+            printf("Opcao invalida.\n");
+            pausar();
+        }
+
+    } while (op != 0);
+}
+
+/* ── MENU BANCO (entidades dentro da pasta) ── */
+void menu_banco() {
+    int op;
+    do {
+        printf("\n"); linha();
+        printf("BANCO: %s\n", banco_aberto);
+        linha();
+        printf("1. Criar entidade\n");
+        printf("2. Abrir entidade\n");
+        printf("3. Excluir entidade\n");
+        printf("0. Voltar\n");
+        linha();
+        printf("Opcao: ");
+        op = ler_numero();
+
+        if (op == 1) {
+            printf("Nome da entidade: ");
+            char nome[MAX_NOME];
+            ler_texto(nome, MAX_NOME);
+            char arq[MAX_NOME*2+8];
+            sprintf(arq, "%s%s%s.txt", banco_aberto, SEP, nome);
+            FILE *t = fopen(arq, "r");
+            if (t) { fclose(t); printf("Entidade '%s' ja existe!\n", nome); }
+            else {
+                FILE *f = fopen(arq, "w");
+                if (!f) printf("Erro ao criar entidade.\n");
+                else {
+                    fprintf(f, "0\n0\n");
+                    fclose(f);
+                    printf("Entidade '%s' criada! Arquivo: %s\n", nome, arq);
+                }
+            }
+            pausar();
+
+        } else if (op == 2) {
+            printf("Nome da entidade (sem .txt): ");
+            char nome[MAX_NOME];
+            ler_texto(nome, MAX_NOME);
+            char arq[MAX_NOME*2+8];
+            sprintf(arq, "%s%s%s.txt", banco_aberto, SEP, nome);
+            FILE *t = fopen(arq, "r");
+            if (!t) { printf("Entidade '%s' nao encontrada.\n", nome); pausar(); }
+            else {
+                fclose(t);
+                strcpy(entidade_aberta, arq);
+                total_atributos = 0;
+                menu_entidade();
+            }
+
+        } else if (op == 3) {
+            printf("Nome da entidade (sem .txt): ");
+            char nome[MAX_NOME];
+            ler_texto(nome, MAX_NOME);
+            char arq[MAX_NOME*2+8];
+            sprintf(arq, "%s%s%s.txt", banco_aberto, SEP, nome);
+            printf("Tem certeza? (s/n): ");
+            char conf[5];
+            ler_texto(conf, sizeof(conf));
+            if (conf[0]=='s' || conf[0]=='S') {
+                if (remove(arq)==0) printf("Entidade excluida.\n");
+                else printf("Entidade nao encontrada.\n");
+            } else printf("Cancelado.\n");
+            pausar();
+
+        } else if (op != 0) {
+            printf("Opcao invalida.\n");
+            pausar();
+        }
+
+    } while (op != 0);
+}
+
+/* ── MENU PRINCIPAL (bancos = pastas) ── */
+void menu_principal() {
+    int op;
+    do {
+        printf("\n"); linha();
+        printf("GERENCIADOR DE BANCO DE DADOS\n");
+        linha();
+        printf("1. Criar banco\n");
+        printf("2. Abrir banco\n");
+        printf("3. Excluir banco\n");
+        printf("0. Sair\n");
+        linha();
+        printf("Opcao: ");
+        op = ler_numero();
+
+        if (op == 1) {
+            printf("Nome do banco: ");
+            char nome[MAX_NOME];
+            ler_texto(nome, MAX_NOME);
+            if (MKDIR(nome) == 0)
+                printf("Banco '%s' criado!\n", nome);
+            else
+                printf("Banco '%s' ja existe ou erro ao criar.\n", nome);
+            pausar();
+
+        } else if (op == 2) {
+            printf("Nome do banco: ");
+            char nome[MAX_NOME];
+            ler_texto(nome, MAX_NOME);
+            /* testa se a pasta existe tentando criar um arquivo dentro */
+            char teste[MAX_NOME+20];
+            sprintf(teste, "%s%s.", nome, SEP);
+            FILE *t = fopen(teste, "r");
+            /* no Windows/Linux basta tentar abrir a pasta mesmo */
+            /* usamos um arquivo sentinela opcional; se falhar, avisamos */
+            /* melhor: tenta criar arquivo temporario dentro */
+            char tmp[MAX_NOME+30];
+            sprintf(tmp, "%s%s__tmp__", nome, SEP);
+            FILE *f = fopen(tmp, "w");
+            if (!f) { printf("Banco '%s' nao encontrado.\n", nome); pausar(); }
+            else {
+                fclose(f);
+                remove(tmp);
+                strcpy(banco_aberto, nome);
+                menu_banco();
+            }
+
+        } else if (op == 3) {
+            printf("Nome do banco: ");
+            char nome[MAX_NOME];
+            ler_texto(nome, MAX_NOME);
+            printf("Tem certeza? (s/n): ");
+            char conf[5];
+            ler_texto(conf, sizeof(conf));
+            if (conf[0]=='s' || conf[0]=='S') {
+                /* remove a pasta (so funciona se estiver vazia) */
+                #ifdef _WIN32
+                char cmd[MAX_NOME+30];
+                sprintf(cmd, "rmdir /s /q \"%s\"", nome);
+                #else
+                char cmd[MAX_NOME+30];
+                sprintf(cmd, "rm -rf \"%s\"", nome);
+                #endif
+                if (system(cmd) == 0) printf("Banco '%s' excluido.\n", nome);
+                else printf("Erro ao excluir banco.\n");
+            } else printf("Cancelado.\n");
+            pausar();
+
+        } else if (op != 0) {
+            printf("Opcao invalida.\n");
+            pausar();
+        }
+
+    } while (op != 0);
+
+    printf("Ate logo!\n");
+}
+
+int main() {
+    printf("=== Gerenciador de Banco de Dados ===\n");
+    menu_principal();
+    return 0;
+}
