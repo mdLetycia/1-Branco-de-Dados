@@ -1,0 +1,1 @@
+Adicione aqui os fundos referenciados em story.json. Sugestão: PNG/JPG 16:9, por exemplo 1920x1080. Atualize o mapa assets.backgrounds no JSON para usar outro nome/caminho.

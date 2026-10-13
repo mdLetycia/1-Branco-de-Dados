@@ -1,0 +1,1 @@
+Coloque aqui efeitos WAV e liste seus caminhos em audio.sfx dentro de story.json.

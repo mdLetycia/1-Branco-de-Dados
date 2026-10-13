@@ -1,0 +1,141 @@
+{
+  "title": "Fio de Amanhã",
+  "start": "prologo_estacao",
+  "audio": {
+    "music": "assets/music/tema.ogg",
+    "sfx": {
+      "click": "assets/sfx/clique.wav"
+    }
+  },
+  "assets": {
+    "backgrounds": {
+      "amanhecer_estacao": "assets/backgrounds/estacao_amanhecer.png",
+      "plataforma_vazia": "assets/backgrounds/plataforma_vazia.png",
+      "trilho": "assets/backgrounds/trilho.png"
+    },
+    "sprites": {
+      "lia": "assets/sprites/lia.png",
+      "caio": "assets/sprites/caio.png"
+    }
+  },
+  "scenes": {
+    "prologo_estacao": {
+      "title": {
+        "pt": "Prólogo: A última plataforma",
+        "en": "Prologue: The last platform"
+      },
+      "background": "amanhecer_estacao",
+      "lines": [
+        {
+          "speaker": {"pt": "Narrador", "en": "Narrator"},
+          "text": {
+            "pt": "Às 5h17, a estação parecia existir fora do resto da cidade. O primeiro trem ainda demoraria vinte minutos.",
+            "en": "At 5:17, the station seemed to exist outside the rest of the city. The first train was still twenty minutes away."
+          }
+        },
+        {
+          "speaker": {"pt": "Narrador", "en": "Narrator"},
+          "text": {
+            "pt": "Lia segurava uma passagem antiga. No verso, uma frase escrita por sua mãe: \"Se um dia precisar escolher, escute o que ficou por dizer.\"",
+            "en": "Lia held an old ticket. On the back, a sentence written by her mother: \"If you ever have to choose, listen for what was left unsaid.\""
+          }
+        },
+        {
+          "speaker": {"pt": "Lia", "en": "Lia"},
+          "sprite": "lia",
+          "text": {
+            "pt": "Eu achei que voltar seria mais simples. É estranho como um lugar pode continuar igual e, ainda assim, não reconhecer você.",
+            "en": "I thought coming back would be simpler. It's strange how a place can stay the same and still not recognize you."
+          }
+        },
+        {
+          "speaker": {"pt": "Narrador", "en": "Narrator"},
+          "text": {
+            "pt": "Passos apressados ecoaram pelo corredor. Um rapaz surgiu na plataforma, carregando uma caixa de papelão quase tão velha quanto a estação.",
+            "en": "Quick footsteps echoed down the corridor. A young man appeared on the platform, carrying a cardboard box almost as old as the station."
+          }
+        },
+        {
+          "speaker": {"pt": "Caio", "en": "Caio"},
+          "sprite": "caio",
+          "text": {
+            "pt": "Lia? Eu não sabia se você vinha mesmo. Encontrei isso no depósito. Tem seu nome escrito embaixo.",
+            "en": "Lia? I didn't know if you were really coming. I found this in storage. Your name is written underneath."
+          }
+        },
+        {
+          "speaker": {"pt": "Lia", "en": "Lia"},
+          "sprite": "lia",
+          "text": {
+            "pt": "Ela reconheceu a caligrafia antes de tocar na caixa. O trem apitou ao longe. Pela primeira vez naquela manhã, havia mais de um caminho à frente.",
+            "en": "She recognized the handwriting before touching the box. A train sounded in the distance. For the first time that morning, more than one path lay ahead."
+          }
+        }
+      ],
+      "choices": [
+        {
+          "text": {
+            "pt": "Abrir a caixa com Caio, ali mesmo na plataforma.",
+            "en": "Open the box with Caio, right there on the platform."
+          },
+          "goto": "final_caixa",
+          "set": {"escolha": "caixa"}
+        },
+        {
+          "text": {
+            "pt": "Pedir que Caio conte primeiro por que guardou aquilo.",
+            "en": "Ask Caio to explain why he kept it before opening it."
+          },
+          "goto": "final_conversa",
+          "set": {"escolha": "conversa"}
+        }
+      ]
+    },
+    "final_caixa": {
+      "title": {"pt": "Prólogo: O que ficou", "en": "Prologue: What remained"},
+      "background": "plataforma_vazia",
+      "lines": [
+        {
+          "speaker": {"pt": "Narrador", "en": "Narrator"},
+          "text": {
+            "pt": "Dentro da caixa havia cartas, fotografias e um gravador portátil. Lia reconheceu o riso da mãe antes mesmo de a fita terminar de girar.",
+            "en": "Inside the box were letters, photographs, and a portable recorder. Lia recognized her mother's laugh before the tape had finished turning."
+          }
+        },
+        {
+          "speaker": {"pt": "Lia", "en": "Lia"},
+          "sprite": "lia",
+          "text": {
+            "pt": "Não é uma resposta. Mas talvez seja um começo.",
+            "en": "It's not an answer. But maybe it's a beginning."
+          }
+        }
+      ],
+      "ending": true,
+      "ending_title": {"pt": "Fim do prólogo · A caixa", "en": "Prologue end · The box"}
+    },
+    "final_conversa": {
+      "title": {"pt": "Prólogo: Antes do trem", "en": "Prologue: Before the train"},
+      "background": "trilho",
+      "lines": [
+        {
+          "speaker": {"pt": "Caio", "en": "Caio"},
+          "sprite": "caio",
+          "text": {
+            "pt": "Eu prometi que não abriria sem você. Sua mãe pediu que eu esperasse até você estar pronta.",
+            "en": "I promised I wouldn't open it without you. Your mother asked me to wait until you were ready."
+          }
+        },
+        {
+          "speaker": {"pt": "Narrador", "en": "Narrator"},
+          "text": {
+            "pt": "O trem chegou, mas Lia não embarcou. Algumas conversas precisavam acontecer antes de qualquer partida.",
+            "en": "The train arrived, but Lia didn't board. Some conversations had to happen before any departure."
+          }
+        }
+      ],
+      "ending": true,
+      "ending_title": {"pt": "Fim do prólogo · A conversa", "en": "Prologue end · The conversation"}
+    }
+  }
+}

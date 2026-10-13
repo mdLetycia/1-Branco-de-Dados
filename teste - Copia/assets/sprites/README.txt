@@ -1,0 +1,1 @@
+Adicione aqui sprites PNG com transparência. Sugestão: personagem em corpo inteiro, 560 px de altura ou mais. Atualize o mapa assets.sprites no story.json.

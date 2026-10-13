@@ -1,0 +1,1 @@
+Coloque a música tema em tema.ogg ou atualize audio.music em story.json. A reprodução é opcional; o jogo continua funcionando sem áudio.
